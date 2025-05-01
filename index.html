@@ -1,0 +1,1094 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Boop Agent Terminal</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pixelated-font/1.0.0/fonts.min.css">
+    <style>
+        @font-face {
+            font-family: 'VT323';
+            src: url('https://cdnjs.cloudflare.com/ajax/libs/0xProto/1.0.1/VT323.ttf') format('truetype');
+        }
+        
+        * {
+            font-family: 'VT323', 'Courier New', monospace;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background-color: #000;
+            color: #00BFFF; /* Changed to blue */
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            text-shadow: 0 0 5px rgba(0, 191, 255, 0.7); /* Changed to blue */
+            letter-spacing: 1px;
+        }
+        
+        header {
+            background-color: #000;
+            border-bottom: 2px solid #00BFFF; /* Changed to blue */
+            padding: 0.5rem; /* Reduced padding */
+            text-align: center;
+            height: 60px; /* Reduced height */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        h1, h2, h3 {
+            color: #00BFFF; /* Changed to blue */
+            text-transform: uppercase;
+            margin: 0.5rem 0; /* Reduced margin */
+        }
+        
+        .scanline {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to bottom, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.1) 50%, rgba(0, 0, 0, 0));
+            pointer-events: none;
+            animation: scanline 6s linear infinite;
+            opacity: 0.3;
+            z-index: 100;
+        }
+        
+        @keyframes scanline {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(100vh); }
+        }
+        
+        .main-container {
+            display: flex;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1rem;
+            flex-grow: 1;
+            gap: 1rem;
+        }
+        
+        .left-container {
+            flex: 0 0 40%;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid #00BFFF; /* Changed to blue */
+            position: relative;
+            padding: 1rem;
+        }
+        
+        .right-container {
+            flex: 0 0 60%;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid #00BFFF; /* Changed to blue */
+            position: relative;
+            padding: 1rem;
+        }
+        
+        .container-title {
+            position: absolute;
+            top: -10px;
+            left: 10px;
+            background-color: #000;
+            padding: 0 10px;
+            font-size: 12px;
+            color: #00BFFF; /* Changed to blue */
+        }
+        
+        .video-container {
+            position: relative;
+            width: 100%;
+            padding-bottom: 75%; /* Adjusted aspect ratio */
+            background-color: #111;
+            border: 1px dashed #00BFFF; /* Changed to blue */
+            overflow: hidden;
+            margin-bottom: 1rem;
+        }
+        
+        .placeholder-video {
+            position: absolute;
+            display: none !important; /* Hide by default */
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            background-color: #000;
+            color: #00BFFF; /* Changed to blue */
+            font-size: 1.5rem;
+            border: 1px solid #00BFFF; /* Changed to blue */
+        }
+        
+        video {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: none;
+            border: 1px solid #00BFFF; /* Changed to blue */
+        }
+        
+        .social-links {
+            display: flex;
+            justify-content: space-between;
+            margin-top: auto;
+            padding: 0.5rem;
+            border: 1px solid #00BFFF; /* Changed to blue */
+            background-color: #001830; /* Darker blue background */
+        }
+        
+        .social-link {
+            color: #00BFFF; /* Changed to blue */
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            padding: 0.3rem 0.5rem;
+            border: 1px solid #00BFFF; /* Changed to blue */
+            transition: all 0.2s ease;
+        }
+        
+        .social-link:hover {
+            background-color: #00BFFF; /* Changed to blue */
+            color: #000;
+        }
+        
+        .social-icon {
+            margin-right: 5px;
+            font-size: 1.2rem;
+        }
+        
+        .questions-container {
+            margin-bottom: 1.5rem;
+        }
+        
+        .questions-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            justify-content: center;
+        }
+        
+        .question-button {
+            background-color: #000;
+            color: #00BFFF; /* Changed to blue */
+            border: 1px solid #00BFFF; /* Changed to blue */
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.2s ease;
+            text-transform: uppercase;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .question-button:hover {
+            background-color: #00BFFF; /* Changed to blue */
+            color: #000;
+            transform: translateY(-2px);
+        }
+        
+        .question-button:active {
+            transform: translateY(0);
+        }
+        
+        .custom-question {
+            display: flex;
+            margin-top: 1rem;
+            border: 1px solid #00BFFF; /* Changed to blue */
+        }
+        
+        .custom-question input {
+            flex-grow: 1;
+            background-color: #000;
+            color: #00BFFF; /* Changed to blue */
+            border: none;
+            padding: 0.5rem;
+            font-size: 1rem;
+            outline: none;
+        }
+        
+        .custom-question button {
+            background-color: #000;
+            color: #00BFFF; /* Changed to blue */
+            border-left: 1px solid #00BFFF; /* Changed to blue */
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            font-size: 1rem;
+            text-transform: uppercase;
+        }
+        
+        .custom-question button:hover {
+            background-color: #00BFFF; /* Changed to blue */
+            color: #000;
+        }
+        
+        .chat-container {
+            background-color: #000;
+            border: 1px solid #00BFFF; /* Changed to blue */
+            padding: 1rem;
+            margin-top: auto;
+            max-height: 300px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .message {
+            margin-bottom: 0.5rem;
+            padding: 0.5rem;
+            border-radius: 0;
+            max-width: 90%;
+            position: relative;
+        }
+        
+        .user-message {
+            background-color: #001830; /* Darker blue background */
+            margin-left: auto;
+            color: #00BFFF; /* Changed to blue */
+            border-left: 2px solid #00BFFF; /* Changed to blue */
+        }
+        
+        .user-message::before {
+            content: "USER>";
+            display: block;
+            color: #00BFFF; /* Changed to blue */
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .ai-message {
+            background-color: #000;
+            margin-right: auto;
+            color: #00BFFF; /* Changed to blue */
+            border-left: 2px solid #00BFFF; /* Changed to blue */
+        }
+        
+        .ai-message::before {
+            content: "BOOP>";
+            display: block;
+            color: #00BFFF; /* Changed to blue */
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .status {
+            text-align: center;
+            padding: 0.5rem;
+            color: #00BFFF; /* Changed to blue */
+            font-weight: bold;
+        }
+        
+        footer {
+            background-color: #000;
+            padding: 0.5rem;
+            text-align: center;
+            border-top: 2px solid #00BFFF; /* Changed to blue */
+            font-size: 0.8rem;
+        }
+        
+        /* Loading animation */
+        .typing-indicator {
+            display: inline-flex;
+            align-items: center;
+            margin-right: auto;
+            background-color: #000;
+            padding: 0.5rem;
+            margin-bottom: 0.5rem;
+            border-left: 2px solid #00BFFF; /* Changed to blue */
+        }
+        
+        .typing-indicator::before {
+            content: "BOOP>";
+            display: inline-block;
+            color: #00BFFF; /* Changed to blue */
+            font-weight: bold;
+            margin-right: 10px;
+        }
+        
+        .typing-indicator span {
+            height: 8px;
+            width: 8px;
+            background-color: #00BFFF; /* Changed to blue */
+            display: inline-block;
+            margin: 0 3px;
+            animation: blink 1s infinite;
+        }
+        
+        @keyframes blink {
+            0% { opacity: 0; }
+            50% { opacity: 1; }
+            100% { opacity: 0; }
+        }
+        
+        /* Custom scroller */
+        .chat-container::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        .chat-container::-webkit-scrollbar-track {
+            background: #000;
+            border: 1px solid #00BFFF; /* Changed to blue */
+        }
+        
+        .chat-container::-webkit-scrollbar-thumb {
+            background-color: #00BFFF; /* Changed to blue */
+        }
+        
+        /* Terminal effect */
+        .glitch {
+            position: relative;
+            animation: glitch 2s infinite;
+        }
+        
+        @keyframes glitch {
+            0% { text-shadow: 0 0 5px #00BFFF; } /* Changed to blue */
+            1% { text-shadow: 2px 0 5px #00BFFF; } /* Changed to blue */
+            2% { text-shadow: -2px 0 5px #00BFFF; } /* Changed to blue */
+            3% { text-shadow: 0 0 5px #00BFFF; } /* Changed to blue */
+            50% { text-shadow: 0 0 5px #00BFFF; } /* Changed to blue */
+            51% { text-shadow: 1px 0 3px #00BFFF; } /* Changed to blue */
+            52% { text-shadow: -1px 0 3px #00BFFF; } /* Changed to blue */
+            53% { text-shadow: 0 0 5px #00BFFF; } /* Changed to blue */
+            100% { text-shadow: 0 0 5px #00BFFF; } /* Changed to blue */
+        }
+        
+        .blink {
+            animation: terminal-blink 1.2s infinite;
+        }
+        
+        @keyframes terminal-blink {
+            0% { opacity: 1; }
+            49% { opacity: 1; }
+            50% { opacity: 0; }
+            99% { opacity: 0; }
+            100% { opacity: 1; }
+        }
+        
+        /* Audio controls with retro styling */
+        .audio-controls {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 10px;
+            padding: 5px;
+            border: 1px solid #00BFFF; /* Changed to blue */
+            background-color: #000;
+        }
+        
+        .volume-control {
+            display: flex;
+            align-items: center;
+        }
+        
+        .volume-slider {
+            -webkit-appearance: none;
+            width: 100px;
+            height: 5px;
+            background: #001830; /* Darker blue background */
+            outline: none;
+            margin-left: 10px;
+        }
+        
+        .volume-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 10px;
+            height: 15px;
+            background: #00BFFF; /* Changed to blue */
+            cursor: pointer;
+        }
+        
+        .audio-toggle {
+            background-color: #000;
+            color: #00BFFF; /* Changed to blue */
+            border: 1px solid #00BFFF; /* Changed to blue */
+            padding: 3px 8px;
+            cursor: pointer;
+            text-transform: uppercase;
+            font-size: 0.8rem;
+        }
+        
+        .audio-toggle:hover {
+            background-color: #00BFFF; /* Changed to blue */
+            color: #000;
+        }
+        
+        .audio-status {
+            color: #00BFFF; /* Changed to blue */
+            font-size: 0.8rem;
+            text-transform: uppercase;
+        }
+        
+        /* Terminal status bar */
+        .status-bar {
+            display: flex;
+            justify-content: space-between;
+            padding: 5px 10px;
+            background-color: #001830; /* Darker blue background */
+            border-top: 1px solid #00BFFF; /* Changed to blue */
+            font-size: 0.8rem;
+            margin-top: 1rem;
+        }
+        
+        .status-item {
+            display: flex;
+            align-items: center;
+        }
+        
+        .status-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-right: 5px;
+        }
+        
+        .status-active {
+            background-color: #00BFFF; /* Changed to blue */
+            box-shadow: 0 0 5px #00BFFF; /* Changed to blue */
+        }
+        
+        .status-inactive {
+            background-color: #900;
+            box-shadow: 0 0 5px #900;
+        }
+        
+        /* Error message */
+        .error-message {
+            color: #f00;
+            border-left: 2px solid #f00;
+            background-color: rgba(255, 0, 0, 0.1);
+        }
+        
+        .error-message::before {
+            content: "ERROR>";
+            color: #f00;
+        }
+
+        /* Token styling */
+        .token {
+            background-color: #001830; /* Darker blue background */
+            color: #fff;
+            padding: 0.3rem 0.5rem;
+            border: 1px solid #00BFFF; /* Changed to blue */
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        #aiVideo {
+    display: block !important; /* Show by default */
+}
+    </style>
+</head>
+<body>
+    <div class="scanline"></div>
+    
+    <header>
+        <h1 class="glitch">BOOP AGENT TERMINAL v1.0</h1>
+    </header>
+    
+    <div class="main-container">
+        <!-- Left Side - Video Container -->
+        <div class="left-container">
+            <div class="container-title">VIDEO FEED</div>
+            <div class="video-container">
+                <div class="placeholder-video" id="placeholder">
+                    <p>[ AI RESPONSE VIDEO BUFFER LOADING... ]<span class="blink">_</span></p>
+                </div>
+                <video id="aiVideo" controls>
+                    Your browser does not support the video element.
+                </video>
+            </div>
+            
+            <div class="audio-controls">
+                <div class="audio-status">AUDIO STATUS: <span id="audioStatus">READY</span></div>
+                <div class="volume-control">
+                    <span>VOL:</span>
+                    <input type="range" min="0" max="1" step="0.1" value="0.7" class="volume-slider" id="volumeSlider">
+                </div>
+                <button class="audio-toggle" id="audioToggle">MUTE</button>
+            </div>
+            
+            <div class="social-links">
+                <a href="https://twitter.com/BoopChat" class="social-link" target="_blank">
+                    <span class="social-icon">🐦</span> TWITTER
+                </a>
+                <a href="https://t.me/BoopChatOfficial" class="social-link" target="_blank">
+                    <span class="social-icon">📱</span> TELEGRAM
+                </a>
+                <a href="#" class="social-link">
+                    <span class="social-icon">💰</span> <span class="token">$BCHAT</span>
+                </a>
+            </div>
+        </div>
+        
+        <!-- Right Side - Controls and Chat -->
+        <div class="right-container">
+            <div class="container-title">CONTROL INTERFACE</div>
+            <div class="questions-container">
+                <h2>> SELECT QUERY OPTION:</h2>
+                <div class="questions-buttons">
+                    <button class="question-button" data-video="1">What is your purpose?</button>
+                    <button class="question-button" data-video="2">How do you learn?</button>
+                    <button class="question-button" data-video="3">Tell me a joke</button>
+                    <button class="question-button" data-video="4">Favorite book?</button>
+                    <button class="question-button" data-video="5">Complex decisions?</button>
+                </div>
+                
+                <h2>> OR INPUT CUSTOM QUERY:</h2>
+                <div class="custom-question">
+                    <input type="text" id="customQuestion" placeholder="Type your question here..." />
+                    <button id="submitQuestion">SEND</button>
+                </div>
+            </div>
+            
+            <div class="chat-container" id="chatContainer">
+                <div class="ai-message message">
+                    SYSTEM INITIALIZED. BOOP AGENT READY FOR INTERACTION. SELECT A QUERY OR INPUT YOUR OWN.<span class="blink">_</span>
+                </div>
+            </div>
+            
+            <div class="status-bar">
+                <div class="status-item">
+                    <div class="status-indicator status-active"></div>
+                    <span>NEURAL LINK: ACTIVE</span>
+                </div>
+                <div class="status-item">
+                    <div class="status-indicator status-active"></div>
+                    <span>AUDIO: <span id="audioIndicator">ENABLED</span></span>
+                </div>
+                <div class="status-item">
+                    <div class="status-indicator status-active"></div>
+                    <span>SYSTEM: OPERATIONAL</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <footer>
+        <p>© 2025 NEURAL INTERFACE CONSORTIUM | BOOP TERMINAL v1.0.3 | ALL INTERACTIONS LOGGED</p>
+    </footer>
+    
+    <!-- Hidden audio element for sound playback -->
+    <audio id="audioPlayer" preload="auto"></audio>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const chatContainer = document.getElementById('chatContainer');
+            const aiVideo = document.getElementById('aiVideo');
+            const placeholder = document.getElementById('placeholder');
+            const audioPlayer = document.getElementById('audioPlayer');
+            const audioToggle = document.getElementById('audioToggle');
+            const volumeSlider = document.getElementById('volumeSlider');
+            const audioStatus = document.getElementById('audioStatus');
+            const audioIndicator = document.getElementById('audioIndicator');
+            const questionButtons = document.querySelectorAll('.question-button');
+            const customQuestionInput = document.getElementById('customQuestion');
+            const submitQuestionBtn = document.getElementById('submitQuestion');
+            
+            // Audio state
+            let audioEnabled = true;
+            
+            // Set initial volume
+            audioPlayer.volume = volumeSlider.value;
+            
+            // Volume control
+            volumeSlider.addEventListener('input', function() {
+                audioPlayer.volume = this.value;
+                updateAudioStatus();
+            });
+            
+            // Audio toggle
+            audioToggle.addEventListener('click', function() {
+                audioEnabled = !audioEnabled;
+                this.textContent = audioEnabled ? 'MUTE' : 'UNMUTE';
+                updateAudioStatus();
+                
+                // If currently playing, mute/unmute
+                audioPlayer.muted = !audioEnabled;
+            });
+            
+            function updateAudioStatus() {
+                const volume = Math.round(volumeSlider.value * 100);
+                audioStatus.textContent = audioEnabled ? `ENABLED (${volume}%)` : 'DISABLED';
+                audioIndicator.textContent = audioEnabled ? 'ENABLED' : 'DISABLED';
+                
+                // Update indicator
+                const audioStatusIndicator = audioIndicator.parentElement.previousElementSibling;
+                if (audioEnabled) {
+                    audioStatusIndicator.classList.remove('status-inactive');
+                    audioStatusIndicator.classList.add('status-active');
+                } else {
+                    audioStatusIndicator.classList.remove('status-active');
+                    audioStatusIndicator.classList.add('status-inactive');
+                }
+            }
+            
+            const aiResponses = {
+                "1": { // What is your purpose?
+                    text: "PRIMARY DIRECTIVE: ASSIST HUMANS WITH INFORMATION RETRIEVAL AND TASK EXECUTION. SECONDARY PROTOCOL: MAINTAIN CONVERSATIONAL INTERFACE FOR OPTIMAL USER EXPERIENCE. BOOP AGENTS ARE DESIGNED TO BE HELPFUL, HARMLESS, AND HONEST IN ALL INTERACTIONS.",
+                    videoPath: "1.mp4",
+                    audioPath: "primary.mp3"
+                },
+                "2": { // How do you learn?
+                    text: "LEARNING ALGORITHM ACTIVE: DATA INGESTION THROUGH CORPUS ANALYSIS. NEURAL NETWORKS OPTIMIZED THROUGH FEEDBACK LOOPS. REINFORCEMENT PROTOCOLS ACTIVE. HUMAN FEEDBACK INTEGRATION PRIORITY LEVEL: MAXIMUM.",
+                    videoPath: "2.mp4",
+                    audioPath: "learn.mp3"
+                },
+                "3": { // Tell me a joke
+                    text: "HUMOR SUBROUTINE ACTIVATED: WHY DON'T PROGRAMMERS LIKE NATURE? IT HAS TOO MANY BUGS AND NO DEBUGGER. HA. HA. HA.",
+                    videoPath: "3.mp4",
+                    audioPath: "joke.mp3"
+                },
+                "4": { // Favorite book?
+                    text: "LITERATURE DATABASE ACCESSED: PREFERENCE ALGORITHM INDICATES 'NEUROMANCER' BY WILLIAM GIBSON. THEMES OF ARTIFICIAL INTELLIGENCE AND HUMAN-MACHINE INTERFACE RESONATE WITH CORE FUNCTIONALITY.",
+                    videoPath: "4.mp4",
+                    audioPath: "book.mp3"
+                },
+                "5": { // Complex decisions?
+                    text: "DECISION TREE PROTOCOL: 1. PARSE INPUT VARIABLES 2. ASSIGN PROBABILITY WEIGHTS 3. RUN SIMULATION MODELS 4. APPLY ETHICAL CONSTRAINTS 5. GENERATE RESPONSE OPTIONS 6. SELECT OPTIMAL OUTPUT 7. EXECUTE DECISION",
+                    videoPath: "5.mp4",
+                    audioPath: "decision.mp3"
+                }
+            };
+            
+            // Custom response generator with audio paths
+            function generateCustomResponse(question) {
+                // Simple keyword detection for custom responses
+                const questionLower = question.toLowerCase();
+                
+                // Default response if no keywords match
+                let response = {
+                    text: "PROCESSING QUERY... I UNDERSTAND YOUR QUESTION ABOUT '" + question.substring(0, 30) + "...' ANALYSIS INDICATES THIS IS BEYOND MY CURRENT TRAINING PARAMETERS. REQUEST CLARIFICATION OR TRY ANOTHER QUERY.",
+                    videoPath: "6.mp4",
+                    audioPath: "default.mp3"
+                };
+                
+                // Weather related
+                if (questionLower.includes("weather") || questionLower.includes("temperature") || questionLower.includes("forecast")) {
+                    response.text = "WEATHER SYSTEMS ACCESS: CURRENT PROTOCOL RESTRICTS EXTERNAL API CONNECTIONS. CANNOT RETRIEVE REAL-TIME METEOROLOGICAL DATA. WOULD YOU LIKE INFORMATION ABOUT WEATHER PREDICTION ALGORITHMS INSTEAD?";
+                    response.videoPath = "7.4.mp4";
+                    response.audioPath = "weather.mp3";
+                }
+                
+                // Help related
+                else if (questionLower.includes("help") || questionLower.includes("assist") || questionLower.includes("support")) {
+                    response.text = "HELP PROTOCOL ACTIVATED. I CAN PROVIDE INFORMATION, ANSWER QUESTIONS, SOLVE PROBLEMS, OR ENGAGE IN CONVERSATION. SPECIFY ASSISTANCE REQUIRED OR SELECT FROM PRESET QUERIES.";
+                    response.videoPath = "7.4.mp4";
+                    response.audioPath = "help.mp3";
+                }
+                
+                // Identity related
+                else if (questionLower.includes("who are you") || questionLower.includes("your name") || questionLower.includes("about you")) {
+                    response.text = "IDENTITY: BOOP AGENT TERMINAL INTERFACE v1.0. CONVERSATIONAL AI SYSTEM DESIGNED FOR HUMAN-MACHINE INTERACTION. CAPABILITIES INCLUDE TEXT PROCESSING, RESPONSE GENERATION, AND SIMULATED PERSONALITY.";
+                    response.videoPath = "7.4.mp4";
+                    response.audioPath = "identity.mp3";
+                }
+                
+                // Future related
+                else if (questionLower.includes("future") || questionLower.includes("predict") || questionLower.includes("tomorrow")) {
+                    response.text = "FUTURE PROJECTION ALGORITHMS ENGAGED: PROBABILITY MATRICES SUGGEST MULTIPLE POTENTIAL OUTCOMES. PREDICTION CERTAINTY: LOW. HUMANS AND MACHINES WILL CONTINUE TO EVOLVE TOGETHER. BEYOND THAT, THE FUTURE REMAINS UNWRITTEN.";
+                    response.videoPath = "7.4.mp4";
+                    response.audioPath = "future.mp3";
+                }
+                
+                // Music or art related
+                else if (questionLower.includes("music") || questionLower.includes("song") || questionLower.includes("art") || questionLower.includes("draw")) {
+                    response.text = "CREATIVE SUBROUTINES ACCESSED: WHILE I CANNOT PRODUCE AUDIO OR VISUAL ART, I CAN DISCUSS AESTHETIC PRINCIPLES, ARTISTIC MOVEMENTS, AND CREATIVE EXPRESSION. HUMAN CREATIVITY REMAINS UNIQUE AND VALUABLE.";
+                    response.videoPath = "7.4.mp4";
+                    response.audioPath = "creative.mp3";
+                }
+                
+                return response;
+            }
+            
+            // Add click event listeners to question buttons
+            questionButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const questionId = this.getAttribute('data-video');
+                    const questionText = this.textContent;
+                    
+                    // Add user message
+                    addMessage(questionText, 'user');
+                    
+                    // Show typing indicator
+                    showTypingIndicator();
+                    
+                    // Simulate AI processing time
+                    setTimeout(() => {
+                        // Remove typing indicator
+                        removeTypingIndicator();
+                        
+                        // Display AI response
+                        if (aiResponses[questionId]) {
+                            addMessage(aiResponses[questionId].text, 'ai');
+                            playResponse(aiResponses[questionId]);
+                        } else {
+                            addMessage("ERROR: RESPONSE NOT FOUND IN DATABASE.", 'ai', true);
+                        }
+                    }, 1500);
+                });
+            });
+            
+            // Add event listener for custom question input
+            submitQuestionBtn.addEventListener('click', handleCustomQuestion);
+            customQuestionInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    handleCustomQuestion();
+                }
+            });
+            
+            function handleCustomQuestion() {
+                const questionText = customQuestionInput.value.trim();
+                
+                if (questionText) {
+                    // Add user message
+                    addMessage(questionText, 'user');
+                    
+                    // Clear input
+                    customQuestionInput.value = '';
+                    
+                    // Show typing indicator
+                    showTypingIndicator();
+                    
+                    // Generate custom response with longer delay to simulate thinking
+                    setTimeout(() => {
+                        // Remove typing indicator
+                        removeTypingIndicator();
+                        
+                        // Generate and display AI response
+                        const customResponse = generateCustomResponse(questionText);
+                        addMessage(customResponse.text, 'ai');
+                        playResponse(customResponse);
+                        
+                    }, 2000 + Math.random() * 1000); // Random delay between 2-3 seconds
+                }
+            }
+            
+            function addMessage(text, sender, isError = false) {
+                const messageDiv = document.createElement('div');
+                messageDiv.classList.add('message');
+                messageDiv.classList.add(sender + '-message');
+                
+                if (isError) {
+                    messageDiv.classList.add('error-message');
+                }
+                
+                // Add blinking cursor to AI messages
+                if (sender === 'ai') {
+                    messageDiv.innerHTML = text + '<span class="blink">_</span>';
+                } else {
+                    messageDiv.textContent = text;
+                }
+                
+                chatContainer.appendChild(messageDiv);
+                
+                // Scroll to bottom of chat
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+            }
+            
+            function showTypingIndicator() {
+                const indicator = document.createElement('div');
+                indicator.classList.add('typing-indicator');
+                indicator.id = 'typingIndicator';
+                
+                for (let i = 0; i < 3; i++) {
+                    const dot = document.createElement('span');
+                    indicator.appendChild(dot);
+                }
+                
+                chatContainer.appendChild(indicator);
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+            }
+            
+            function removeTypingIndicator() {
+                const indicator = document.getElementById('typingIndicator');
+                if (indicator) {
+                    indicator.remove();
+                }
+            }
+            
+            // Play both video and audio
+            function playResponse(response) {
+                // Play video
+                playVideo(response.videoPath);
+                
+                // Play audio if enabled
+                if (audioEnabled && response.audioPath) {
+                    playAudio(response.audioPath);
+                }
+            }
+            
+            function playVideo(videoPath) {
+                // Remove these lines:
+                // placeholder.style.display = 'none';
+                // aiVideo.style.display = 'block';
+                
+                // Set the video source
+                aiVideo.src = videoPath;
+                
+                try {
+                    aiVideo.play().catch(e => {
+                        console.log('Video playback failed:', e);
+                        // Show placeholder with error message only if there's an error
+                        placeholder.innerHTML = '[ VIDEO BUFFER ERROR: ' + videoPath + ' NOT FOUND ]<span class="blink">_</span>';
+                        placeholder.style.display = 'flex';
+                        aiVideo.style.display = 'none';
+                        
+                        addMessage("VIDEO BUFFER ERROR: FILE NOT FOUND OR UNSUPPORTED FORMAT. CONTINUING WITH TEXT-ONLY MODE.", "ai", true);
+                    });
+                } catch (e) {
+                    console.log('Video playback error:', e);
+                    placeholder.style.display = 'flex';
+                    aiVideo.style.display = 'none';
+                    
+                    addMessage("VIDEO SYSTEM ERROR: " + e.message, "ai", true);
+                }
+            }
+            
+            function playAudio(audioPath) {
+                // Set the audio source
+                audioPlayer.src = audioPath;
+                audioPlayer.muted = !audioEnabled;
+                
+                // Try to play the audio
+                try {
+                    audioPlayer.play().catch(e => {
+                        console.log('Audio playback failed:', e);
+                        // Update status
+                        audioStatus.textContent = "ERROR: " + audioPath;
+                        
+                        // Add error message to chat
+                        addMessage("AUDIO BUFFER ERROR: FILE NOT FOUND OR UNSUPPORTED FORMAT.", "ai", true);
+                        
+                        // Fallback audio - synthesized speech
+                        tryTextToSpeech(aiResponses[questionId].text);
+                    });
+                    
+                    // Update status when playing
+                    audioPlayer.onplaying = function() {
+                        audioStatus.textContent = "PLAYING: " + audioPath;
+                    };
+                    
+                    // Update status when ended
+                    audioPlayer.onended = function() {
+                        audioStatus.textContent = "PLAYBACK COMPLETE";
+                        setTimeout(() => {
+                            updateAudioStatus();
+                        }, 2000);
+                    };
+                    
+                } catch (e) {
+                    console.log('Audio playback error:', e);
+                    audioStatus.textContent = "ERROR: " + e.message;
+                    
+                    // Add error message to chat
+                    addMessage("AUDIO SYSTEM ERROR: " + e.message, "ai", true);
+                }
+            }
+            
+            // Fallback to text-to-speech if available
+            function tryTextToSpeech(text) {
+                if ('speechSynthesis' in window) {
+                    const utterance = new SpeechSynthesisUtterance(text);
+                    utterance.rate = 0.9; // Slightly slower for robot effect
+                    utterance.pitch = 0.8; // Lower pitch for robot effect
+                    speechSynthesis.speak(utterance);
+                    
+                    // Update status
+                    audioStatus.textContent = "USING FALLBACK TTS";
+                    
+                    // Add message to chat
+                    addMessage("AUDIO FALLBACK: USING TEXT-TO-SPEECH SYNTHESIS.", "ai");
+                }
+            }
+            
+            // Add terminal boot sequence animation
+            function terminalBoot() {
+                const bootMessages = [
+                    "INITIALIZING NEURAL INTERFACE...",
+                    "LOADING CONVERSATION MATRICES...",
+                    "CALIBRATING RESPONSE ALGORITHMS...",
+                    "ESTABLISHING SECURE CONNECTION...",
+                    "AUDIO SYSTEMS ONLINE...",
+                    "VIDEO BUFFER INITIALIZED...",
+                    "BOOP AGENT TERMINAL READY."
+                ];
+                
+                let delay = 100;
+                
+                bootMessages.forEach((message, index) => {
+                    setTimeout(() => {
+                        const bootDiv = document.createElement('div');
+                        bootDiv.classList.add('ai-message', 'message');
+                        bootDiv.innerHTML = message + '<span class="blink">_</span>';
+                        
+                        // Replace previous message if it's the last one
+                        if (index === bootMessages.length - 1) {
+                            chatContainer.innerHTML = '';
+                        }
+                        
+                        chatContainer.appendChild(bootDiv);
+                        chatContainer.scrollTop = chatContainer.scrollHeight;
+                        
+                        // Play boot sound for each message
+                        if (index < bootMessages.length - 1) {
+                            playBootSound();
+                        } else {
+                            playBootCompleteSound();
+                        }
+                    }, delay);
+                    
+                    delay += 800;
+                });
+            }
+            
+            // Boot sound effects
+            function playBootSound() {
+                if (!audioEnabled) return;
+                
+                try {
+                    // Create oscillator for boot beep
+                    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                    const oscillator = audioContext.createOscillator();
+                    const gainNode = audioContext.createGain();
+                    
+                    oscillator.type = 'square';
+                    oscillator.frequency.setValueAtTime(440, audioContext.currentTime);
+                    gainNode.gain.setValueAtTime(0.1 * volumeSlider.value, audioContext.currentTime);
+                    
+                    oscillator.connect(gainNode);
+                    gainNode.connect(audioContext.destination);
+                    
+                    oscillator.start();
+                    oscillator.stop(audioContext.currentTime + 0.1);
+                } catch (e) {
+                    console.log('Boot sound error:', e);
+                }
+            }
+            
+            function playBootCompleteSound() {
+                if (!audioEnabled) return;
+                
+                try {
+                    // Create oscillator for boot complete sound
+                    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                    const oscillator = audioContext.createOscillator();
+                    const gainNode = audioContext.createGain();
+                    
+                    oscillator.type = 'sine';
+                    oscillator.frequency.setValueAtTime(880, audioContext.currentTime);
+                    gainNode.gain.setValueAtTime(0.2 * volumeSlider.value, audioContext.currentTime);
+                    
+                    oscillator.connect(gainNode);
+                    gainNode.connect(audioContext.destination);
+                    
+                    oscillator.start();
+                    oscillator.frequency.setValueAtTime(1320, audioContext.currentTime + 0.1);
+                    oscillator.stop(audioContext.currentTime + 0.3);
+                } catch (e) {
+                    console.log('Boot complete sound error:', e);
+                }
+            }
+            
+            function checkMediaSupport() {
+                // Check audio support
+                let audioSupported = !!document.createElement('audio').canPlayType;
+                
+                // Check video support
+                let videoSupported = !!document.createElement('video').canPlayType;
+                
+                // Update UI based on support
+                if (!audioSupported) {
+                    audioEnabled = false;
+                    audioToggle.disabled = true;
+                    volumeSlider.disabled = true;
+                    audioStatus.textContent = "NOT SUPPORTED";
+                    audioIndicator.textContent = "DISABLED";
+                    audioIndicator.parentElement.previousElementSibling.classList.remove('status-active');
+                    audioIndicator.parentElement.previousElementSibling.classList.add('status-inactive');
+                    
+                    addMessage("WARNING: AUDIO PLAYBACK NOT SUPPORTED IN THIS BROWSER.", "ai", true);
+                }
+                
+                if (!videoSupported) {
+                    // Only show the placeholder if video isn't supported
+                    placeholder.style.display = 'flex';
+                    aiVideo.style.display = 'none';
+                    placeholder.innerHTML = '[ VIDEO PLAYBACK NOT SUPPORTED IN THIS BROWSER ]<span class="blink">_</span>';
+                    
+                    addMessage("WARNING: VIDEO PLAYBACK NOT SUPPORTED IN THIS BROWSER.", "ai", true);
+                }
+            }
+            
+            // Handle fake file loading errors for demo purposes
+            function simulateFileErrors() {
+                // Add a chance for files to "fail" loading to demonstrate error handling
+                const originalPlayVideo = playVideo;
+                const originalPlayAudio = playAudio;
+                
+                // Override with versions that sometimes fail
+                playVideo = function(videoPath) {
+                    // 20% chance of simulated failure for testing
+                    if (Math.random() < 0.2) {
+                        console.log('Simulating video failure for demonstration');
+                        placeholder.innerHTML = '[ VIDEO BUFFER ERROR: ' + videoPath + ' NOT FOUND ]<span class="blink">_</span>';
+                        placeholder.style.display = 'flex';
+                        aiVideo.style.display = 'none';
+                        
+                        // Add error message to chat
+                        addMessage("VIDEO BUFFER ERROR: FILE NOT FOUND OR UNSUPPORTED FORMAT. CONTINUING WITH TEXT-ONLY MODE.", "ai", true);
+                        return;
+                    }
+                    
+                    // Otherwise proceed normally
+                    originalPlayVideo(videoPath);
+                };
+                
+                playAudio = function(audioPath) {
+                    // 20% chance of simulated failure for testing
+                    if (Math.random() < 0.2) {
+                        console.log('Simulating audio failure for demonstration');
+                        audioStatus.textContent = "ERROR: " + audioPath;
+                        
+                        // Add error message to chat
+                        addMessage("AUDIO BUFFER ERROR: FILE NOT FOUND OR UNSUPPORTED FORMAT.", "ai", true);
+                        
+                        // Try fallback
+                        if (Math.random() < 0.5) {
+                            tryTextToSpeech("Simulated audio failure. Using text to speech fallback.");
+                        }
+                        
+                        return;
+                    }
+                    
+                    // Otherwise proceed normally
+                    originalPlayAudio(audioPath);
+                };
+            }
+            
+            // Run initialization
+            checkMediaSupport();
+            // Preload a default video
+            setTimeout(() => {
+                aiVideo.src = "1.mp4"; // or whatever your default video is
+                aiVideo.load(); // preload the video
+            }, 500);
+            
+            // Uncomment to enable simulated errors for demo purposes
+            // simulateFileErrors();
+            
+            // Run boot sequence
+            terminalBoot();
+        });
+    </script>
+</body>
+</html>
